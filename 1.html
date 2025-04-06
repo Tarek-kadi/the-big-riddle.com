@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الاختبار المعرفي</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .screen {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        h1, h2, h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .topics {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .topic-btn, .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .topic-btn:hover, .btn:hover {
+            background: #2980b9;
+        }
+
+        .progress {
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            background: #ecf0f1;
+            height: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            background: #2ecc71;
+            height: 100%;
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .question-container {
+            margin: 30px 0;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        body {
+            background-color: #000;
+            overflow: hidden;
+            
+        
+            
+            background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533483);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+
+        .option {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option:hover {
+            background: #bdc3c7;
+        }
+
+        .option.selected {
+            background: #3498db;
+            color: white;
+        }
+
+        .option.correct {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .option.wrong {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .quiz-footer {
+            margin-top: 20px;
+        }
+
+        .result-container {
+            margin-top: 30px;
+        }
+
+        #score {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2ecc71;
+        }
+
+        .result-details {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="start-screen" class="screen">
+            <h1>لعبة الاختبار المعرفي</h1>
+            <p>اختر موضوعًا لتبدأ الاختبار!</p>
+            <div class="topics">
+                <button class="topic-btn" data-topic="general">المعلومات العامة</button>
+                <button class="topic-btn" data-topic="science">العلوم</button>
+                <button class="topic-btn" data-topic="history">التاريخ</button>
+                <button class="topic-btn" data-topic="sports">الرياضة</button>
+                <button class="topic-btn" data-topic="art">الفنون</button>
+            </div>
+        </div>
+
+        <div id="quiz-screen" class="screen hidden">
+            <div class="quiz-header">
+                <h2 id="quiz-topic">موضوع الاختبار</h2>
+                <div class="progress">
+                    <span id="question-counter">السؤال 1/20</span>
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question-container">
+                <h3 id="question">السؤال يظهر هنا...</h3>
+                <div id="options" class="options">
+                    <!-- الخيارات تظهر هنا عبر JavaScript -->
+                </div>
+            </div>
+
+            <div class="quiz-footer">
+                <button id="next-btn" class="btn">التالي</button>
+            </div>
+        </div>
+
+        <div id="result-screen" class="screen hidden">
+            <h1>نتيجة الاختبار</h1>
+            <div class="result-container">
+                <p id="score-text">لقد حصلت على <span id="score">0</span> من 20</p>
+                <p id="result-message">رسالة النتيجة تظهر هنا</p>
+                <div class="result-details">
+                    <p>الإجابات الصحيحة: <span id="correct-answers">0</span></p>
+                    <p>الإجابات الخاطئة: <span id="wrong-answers">0</span></p>
+                </div>
+                <button id="restart-btn" class="btn">إعادة الاختبار</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // الأسئلة لكل موضوع
+        const questions = {
+            general: [
+                {
+                    question: "ما هي عاصمة فرنسا؟",
+                    options: ["لندن", "برلين", "باريس", "مدريد"],
+                    answer: 2
+                },
+                {
+                    question: "ما هو أطول نهر في العالم؟",
+                    options: ["نهر النيل", "نهر الأمازون", "نهر المسيسيبي", "نهر اليانغتسي"],
+                    answer: 0
+                },
+                {
+                    question: "كم عدد القارات في العالم؟",
+                    options: ["5", "6", "7", "8"],
+                    answer: 2
+                },
+                {
+                    question: "ما هي اللغة الأكثر انتشارًا في العالم؟",
+                    options: ["الإنجليزية", "الإسبانية", "المندرينية", "الهندية"],
+                    answer: 2
+                },
+                {
+                    question: "ما هو العنصر الكيميائي الذي رمزه 'O'؟",
+                    options: ["الذهب", "الأكسجين", "الفضة", "الأوزون"],
+                    answer: 1
+                },
+                {
+                    question: "في أي عام هبط الإنسان على القمر لأول مرة؟",
+                    options: ["1965", "1969", "1972", "1975"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو أسرع حيوان بري؟",
+                    options: ["الفهد", "الأسد", "الغزال", "النمر"],
+                    answer: 0
+                },
+                {
+                    question: "ما هي أكبر دولة في العالم من حيث المساحة؟",
+                    options: ["كندا", "الصين", "الولايات المتحدة", "روسيا"],
+                    answer: 3
+                },
+                {
+                    question: "ما هو اسم أصغر كوكب في المجموعة الشمسية؟",
+                    options: ["المريخ", "عطارد", "الزهرة", "بلوتو"],
+                    answer: 1
+                },
+                {
+                    question: "من هو مخترع المصباح الكهربائي؟",
+                    options: ["نيكولا تيسلا", "توماس إديسون", "ألكسندر جراهام بيل", "جاليليو"],
+                    answer: 1
+                },
+                {
+                    question: "ما هي العملة الرسمية لليابان؟",
+                    options: ["الدولار", "اليورو", "الين", "الجنيه"],
+                    answer: 2
+                },
+                {
+                    question: "ما هو اسم أطول جبل في العالم؟",
+                    options: ["كليمنجارو", "إفرست", "كيه 2", "كانغشينجونغا"],
+                    answer: 1
+                },
+                {
+                    question: "كم عدد ألوان قوس قزح؟",
+                    options: ["5", "6", "7", "8"],
+                    answer: 2
+                },
+                {
+                    question: "ما هو الحيوان الوطني لأستراليا؟",
+                    options: ["الكنغر", "الكوالا", "الإمو", "الدنغو"],
+                    answer: 0
+                },
+                {
+                    question: "ما هي عاصمة كندا؟",
+                    options: ["تورونتو", "فانكوفر", "أوتاوا", "مونتريال"],
+                    answer: 2
+                },
+                {
+                    question: "من هو مؤلف رواية 'البؤساء'؟",
+                    options: ["ليو تولستوي", "فيكتور هوغو", "شارلز ديكنز", "جي دي موباسان"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو اسم أكبر محيط في العالم؟",
+                    options: ["المحيط الأطلسي", "المحيط الهندي", "المحيط الهادئ", "المحيط المتجمد الشمالي"],
+                    answer: 2
+                },
+                {
+                    question: "في أي قارة تقع دولة النرويج؟",
+                    options: ["أوروبا", "آسيا", "أفريقيا", "أمريكا الشمالية"],
+                    answer: 0
+                },
+                {
+                    question: "ما هو اسم أقدم جامعة في العالم؟",
+                    options: ["جامعة هارفارد", "جامعة الأزهر", "جامعة القرويين", "جامعة بولونيا"],
+                    answer: 2
+                },
+                {
+                    question: "من هو أول إنسان صعد إلى الفضاء؟",
+                    options: ["نيل أرمسترونج", "يوري جاجارين", "باز ألدرين", "جون غلين"],
+                    answer: 1
+                }
+            ],
+            science: [
+                {
+                    question: "ما هو الغاز الذي تحتاجه النباتات للقيام بعملية التمثيل الضوئي؟",
+                    options: ["الأكسجين", "ثاني أكسيد الكربون", "النيتروجين", "الهيدروجين"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو أقوى عظم في جسم الإنسان؟",
+                    options: ["عظم الفخذ", "عظم الذراع", "عظم الجمجمة", "عظم الحوض"],
+                    answer: 0
+                },
+                {
+                    question: "ما هي وحدة قياس شدة التيار الكهربائي؟",
+                    options: ["الفولت", "الأمبير", "الأوم", "الواط"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو اسم العملية التي تتحول فيها المادة من الحالة الصلبة إلى الحالة الغازية مباشرة؟",
+                    options: ["التكاثف", "التسامي", "التجمد", "التبخر"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو العنصر الكيميائي الذي رمزه 'Na'؟",
+                    options: ["النيكل", "النحاس", "الصوديوم", "النيون"],
+                    answer: 2
+                },
+                {
+                    question: "ما هو اسم أصغر جزء في المادة يمكن أن يوجد بشكل مستقل؟",
+                    options: ["الجزيء", "الذرة", "الإلكترون", "النيوترون"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو المرض الذي يسببه فيروس نقص المناعة البشرية (HIV)؟",
+                    options: ["الملاريا", "الإيدز", "السل", "الإنفلونزا"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو اسم القوة التي تجذب الأجسام نحو مركز الأرض؟",
+                    options: ["القوة المغناطيسية", "قوة الجاذبية", "القوة النووية", "قوة الاحتكاك"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو المعدن السائل في درجة حرارة الغرفة؟",
+                    options: ["الزئبق", "الصوديوم", "الحديد", "الألومنيوم"],
+                    answer: 0
+                },
+                {
+                    question: "ما هو اسم الجزء من الخلية الذي يحتوي على المادة الوراثية؟",
+                    options: ["الميتوكوندريا", "النواة", "الريبوسوم", "الجسم المركزي"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو الغاز الأكثر وفرة في الغلاف الجوي للأرض؟",
+                    options: ["الأكسجين", "ثاني أكسيد الكربون", "النيتروجين", "الهيدروجين"],
+                    answer: 2
+                },
+                {
+                    question: "ما هو اسم أقرب نجم إلى الأرض بعد الشمس؟",
+                    options: ["سيريوس", "بروكسيما سنتوري", "فويجر 1", "ألفا سنتوري"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو اسم العملية التي تنتج بها النباتات غذائها؟",
+                    options: ["التنفس", "التمثيل الضوئي", "التخمر", "التكاثر"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو اسم الجهاز الذي يستخدم لقياس سرعة الرياح؟",
+                    options: ["البارومتر", "الأنيمومتر", "الهيجرومتر", "الترمومتر"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو اسم أكبر كوكب في المجموعة الشمسية؟",
+                    options: ["زحل", "المشتري", "نبتون", "أورانوس"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو اسم الجزء من العين الذي يتحكم في كمية الضوء الداخل إليها؟",
+                    options: ["الشبكية", "القزحية", "العدسة", "القرنية"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو اسم العملية التي تتحول فيها المادة من الحالة السائلة إلى الحالة الغازية؟",
+                    options: ["التكاثف", "التجمد", "التبخر", "التسامي"],
+                    answer: 2
+                },
+                {
+                    question: "ما هو اسم الجهاز الذي يحول الطاقة الميكانيكية إلى طاقة كهربائية؟",
+                    options: ["المحرك", "المولد", "المحول", "المكثف"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو اسم الجزء من النبات الذي يمتص الماء والمواد الغذائية من التربة؟",
+                    options: ["الساق", "الأوراق", "الجذور", "الثمار"],
+                    answer: 2
+                },
+                {
+                    question: "ما هو اسم العملية التي تتحول فيها المادة من الحالة الغازية إلى الحالة السائلة؟",
+                    options: ["التكاثف", "التبخر", "التجمد", "التسامي"],
+                    answer: 0
+                }
+            ],
+            history: [
+                {
+                    question: "في أي عام انتهت الحرب العالمية الثانية؟",
+                    options: ["1943", "1945", "1947", "1950"],
+                    answer: 1
+                },
+                {
+                    question: "من هو أول رئيس للولايات المتحدة الأمريكية؟",
+                    options: ["توماس جيفرسون", "جون آدامز", "جورج واشنطن", "أبراهام لينكولن"],
+                    answer: 2
+                },
+                {
+                    question: "ما هي الحضارة التي بنت الأهرامات؟",
+                    options: ["الرومانية", "الإغريقية", "الفرعونية", "البابلية"],
+                    answer: 2
+                },
+                {
+                    question: "في أي عام اكتشف كريستوفر كولومبوس أمريكا؟",
+                    options: ["1492", "1501", "1510", "1485"],
+                    answer: 0
+                },
+                {
+                    question: "من هو قائد الثورة الفرنسية؟",
+                    options: ["نابليون بونابرت", "لويس السادس عشر", "روبسبيار", "لا يوجد قائد واحد"],
+                    answer: 3
+                },
+                {
+                    question: "ما هي الدولة التي كانت تسمى سابقًا 'سيام'؟",
+                    options: ["فيتنام", "تايلاند", "ماليزيا", "إندونيسيا"],
+                    answer: 1
+                },
+                {
+                    question: "من هو مؤسس الدولة العباسية؟",
+                    options: ["هارون الرشيد", "أبو جعفر المنصور", "أبو العباس السفاح", "المأمون"],
+                    answer: 2
+                },
+                {
+                    question: "في أي عام سقطت جدار برلين؟",
+                    options: ["1985", "1989", "1991", "1993"],
+                    answer: 1
+                },
+                {
+                    question: "من هو أول خليفة في الإسلام؟",
+                    options: ["عمر بن الخطاب", "عثمان بن عفان", "أبو بكر الصديق", "علي بن أبي طالب"],
+                    answer: 2
+                },
+                {
+                    question: "ما هي المعركة التي هزم فيها نابليون بونابرت هزيمة نهائية؟",
+                    options: ["ووترلو", "أوسترليتز", "بورودينو", "جينا"],
+                    answer: 0
+                },
+                {
+                    question: "من هو مكتشف أمريكا؟",
+                    options: ["فاسكو دي جاما", "كريستوفر كولومبوس", "فرديناند ماجلان", "جيمس كوك"],
+                    answer: 1
+                },
+                {
+                    question: "في أي قرن ظهر الإسلام؟",
+                    options: ["القرن الخامس", "القرن السادس", "القرن السابع", "القرن الثامن"],
+                    answer: 2
+                },
+                {
+                    question: "من هو آخر ملوك فرنسا قبل الثورة الفرنسية؟",
+                    options: ["لويس الرابع عشر", "لويس الخامس عشر", "لويس السادس عشر", "نابليون بونابرت"],
+                    answer: 2
+                },
+                {
+                    question: "ما هي الدولة التي كانت تسمى سابقًا 'بلاد فارس'؟",
+                    options: ["العراق", "إيران", "تركيا", "سوريا"],
+                    answer: 1
+                },
+                {
+                    question: "من هو قائد المسلمين في معركة القادسية؟",
+                    options: ["خالد بن الوليد", "سعد بن أبي وقاص", "عمرو بن العاص", "صلاح الدين الأيوبي"],
+                    answer: 1
+                },
+                {
+                    question: "في أي عام وقعت حرب أكتوبر (حرب رمضان)؟",
+                    options: ["1967", "1973", "1979", "1982"],
+                    answer: 1
+                },
+                {
+                    question: "من هو مؤسس الدولة الأموية؟",
+                    options: ["معاوية بن أبي سفيان", "عبد الملك بن مروان", "الوليد بن عبد الملك", "هشام بن عبد الملك"],
+                    answer: 0
+                },
+                {
+                    question: "ما هي المدينة التي كانت عاصمة للخلافة العباسية؟",
+                    options: ["دمشق", "بغداد", "القاهرة", "الكوفة"],
+                    answer: 1
+                },
+                {
+                    question: "من هو أول من وصل إلى القطب الجنوبي؟",
+                    options: ["روبرت فالكون سكوت", "رولد أموندسن", "إرنست شاكلتون", "جيمس كوك"],
+                    answer: 1
+                },
+                {
+                    question: "في أي عام تأسست الأمم المتحدة؟",
+                    options: ["1943", "1945", "1948", "1950"],
+                    answer: 1
+                }
+            ],
+            sports: [
+                {
+                    question: "في أي رياضة يستخدم المضرب والكرة الصفراء؟",
+                    options: ["التنس", "الكريكت", "البيسبول", "الجولف"],
+                    answer: 0
+                },
+                {
+                    question: "ما هي الدولة التي فازت بكأس العالم لكرة القدم عام 2018؟",
+                    options: ["ألمانيا", "الأرجنتين", "فرنسا", "البرازيل"],
+                    answer: 2
+                },
+                {
+                    question: "كم عدد اللاعبين في فريق كرة السلة؟",
+                    options: ["5", "6", "7", "11"],
+                    answer: 0
+                },
+                {
+                    question: "من هو اللاعب الذي سجل أكبر عدد من الأهداف في تاريخ كرة القدم؟",
+                    options: ["بيليه", "كريستيانو رونالدو", "ليونيل ميسي", "جوزيف بيكان"],
+                    answer: 1
+                },
+                {
+                    question: "ما هي الرياضة الوطنية في كندا؟",
+                    options: ["الهوكي", "لاكروس", "كرة القدم", "البيسبول"],
+                    answer: 1
+                },
+                {
+                    question: "في أي عام أقيمت أول دورة ألعاب أولمبية حديثة؟",
+                    options: ["1896", "1900", "1904", "1912"],
+                    answer: 0
+                },
+                {
+                    question: "ما هو طول ملعب كرة القدم الدولي؟",
+                    options: ["90-100 متر", "100-110 متر", "110-120 متر", "120-130 متر"],
+                    answer: 1
+                },
+                {
+                    question: "من هو أول عداء يكسر حاجز الـ10 ثواني في سباق 100 متر؟",
+                    options: ["يوسين بولت", "كارل لويس", "جيم هاينز", "آسافا باول"],
+                    answer: 2
+                },
+                {
+                    question: "ما هي الرياضة التي يلعبها نادري دجوكوفيتش؟",
+                    options: ["كرة القدم", "كرة السلة", "التنس", "الجولف"],
+                    answer: 2
+                },
+                {
+                    question: "كم عدد الجولات في مباراة الملاكمة المحترفة؟",
+                    options: ["10", "12", "15", "20"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو اسم أكبر ملعب كرة قدم في العالم؟",
+                    options: ["كامب نو", "ملعب ماراكانا", "ملعب رونغرادو ماي دي", "ملعب ويمبلي"],
+                    answer: 2
+                },
+                {
+                    question: "من هو اللاعب الوحيد الذي فاز بكأس العالم لكرة القدم 3 مرات؟",
+                    options: ["بيليه", "دييجو مارادونا", "زين الدين زيدان", "رونالدو نازاريو"],
+                    answer: 0
+                },
+                {
+                    question: "ما هي الرياضة التي تسمى 'الملكة'؟",
+                    options: ["كرة القدم", "التنس", "الجولف", "السباحة"],
+                    answer: 2
+                },
+                {
+                    question: "في أي مدينة تقع دورة الألعاب الأولمبية الصيفية 2024؟",
+                    options: ["طوكيو", "باريس", "لوس أنجلوس", "لندن"],
+                    answer: 1
+                },
+                {
+                    question: "من هو أعلى أجراً في تاريخ الرياضة؟",
+                    options: ["كريستيانو رونالدو", "ليونيل ميسي", "فلoyd Mayweather", "كونور ماكجريجور"],
+                    answer: 2
+                },
+                {
+                    question: "ما هو اسم كأس بطولة العالم لكرة القدم؟",
+                    options: ["كأس جول ريميه", "كأس العالم", "كأس فيفا", "كأس النصر"],
+                    answer: 1
+                },
+                {
+                    question: "من هو اللاعب العربي الوحيد الذي فاز بجائزة الكرة الذهبية؟",
+                    options: ["محمد صلاح", "رياض محرز", "جورج وياه", "لقد فاز أكثر من لاعب"],
+                    answer: 2
+                },
+                {
+                    question: "ما هي الدولة التي فازت بأول كأس عالم لكرة القدم؟",
+                    options: ["البرازيل", "الأوروغواي", "إيطاليا", "الأرجنتين"],
+                    answer: 1
+                },
+                {
+                    question: "من هو أسرع عداء في العالم؟",
+                    options: ["يوسين بولت", "كارل لويس", "آسافا باول", "جاستن جاتلين"],
+                    answer: 0
+                },
+                {
+                    question: "كم عدد الألعاب الأولمبية الصيفية التي ألغيت بسبب الحرب؟",
+                    options: ["1", "2", "3", "4"],
+                    answer: 2
+                }
+            ],
+            art: [
+                {
+                    question: "من هو رسام لوحة الموناليزا؟",
+                    options: ["فان جوخ", "بيكاسو", "ليوناردو دافنشي", "مايكل أنجلو"],
+                    answer: 2
+                },
+                {
+                    question: "ما هي الجائزة السينمائية الأكثر شهرة في العالم؟",
+                    options: ["جائزة الأوسكار", "جائزة الغولدن غلوب", "جائزة البافتا", "جائزة السعفة الذهبية"],
+                    answer: 0
+                },
+                {
+                    question: "من هو مؤلف مسرحية 'هاملت'؟",
+                    options: ["أوسكار وايلد", "وليام شكسبير", "جورج برنارد شو", "آرثر ميلر"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو اسم أشهر مسرح في العالم يقع في نيويورك؟",
+                    options: ["مسرح برودواي", "مسرح ويست إند", "مسرح البولشوي", "مسرح لا سكالا"],
+                    answer: 0
+                },
+                {
+                    question: "من هو مغني البوب المعروف بملك البوب؟",
+                    options: ["إلفيس بريسلي", "مايكل جاكسون", "جاستن بيبر", "برونو مارس"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو اسم الرواية التي كتبها دان براون عن لوحة الموناليزا؟",
+                    options: ["شفرة دافنشي", "الملائكة والشياطين", "الجحيم", "الرمز المفقود"],
+                    answer: 0
+                },
+                {
+                    question: "من هو مؤلف سمفونية القدر؟",
+                    options: ["موزارت", "بيتهوفن", "باخ", "شوبان"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو اسم أسلوب الرسم الذي ابتكره بابلو بيكاسو؟",
+                    options: ["الانطباعية", "التكعيبية", "السريالية", "التجريدية"],
+                    answer: 1
+                },
+                {
+                    question: "من هو المخرج الذي أخرج فيلم 'تايتانيك'؟",
+                    options: ["ستيفن سبيلبرغ", "جيمس كاميرون", "كريستوفر نولان", "مارتن سكورسيزي"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو اسم أشهر مسرحيات شكسبير التراجيدية؟",
+                    options: ["حلم ليلة صيف", "روميو وجولييت", "تاجر البندقية", "كما تحبها"],
+                    answer: 1
+                },
+                {
+                    question: "من هو الفنان المعروف بلوحته 'ليلة النجوم'؟",
+                    options: ["بابلو بيكاسو", "فان جوخ", "سلفادور دالي", "كلود مونيه"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو اسم أقدم آلة موسيقية معروفة؟",
+                    options: ["الناي", "الطبلة", "القيثارة", "الناي العظمي"],
+                    answer: 3
+                },
+                {
+                    question: "من هو مؤلف رواية 'الجريمة والعقاب'؟",
+                    options: ["ليو تولستوي", "فيودور دوستويفسكي", "أنطون تشيخوف", "إيفان تورجنيف"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو اسم أشهر باليه في العالم؟",
+                    options: ["بحيرة البجع", "كسارة البندق", "الجمال النائم", "دون كيشوت"],
+                    answer: 0
+                },
+                {
+                    question: "من هو الممثل الوحيد الذي فاز بجائزة الأوسكار 3 مرات؟",
+                    options: ["جاك نيكلسون", "دانييل دي لويس", "توم هانكس", "مارلون براندو"],
+                    answer: 1
+                },
+                {
+                    question: "ما هو اسم أشهر أوبرا في العالم؟",
+                    options: ["كارمن", "لا ترافياتا", "الناي السحري", "عايدة"],
+                    answer: 1
+                },
+                {
+                    question: "من هو الفنان المعروف بلوحته 'الصرخة'؟",
+                    options: ["سلفادور دالي", "بابلو بيكاسو", "إدفارد مونك", "كلود مونيه"],
+                    answer: 2
+                },
+                {
+                    question: "ما هو اسم أسلوب الرسم الذي يمثله كلود مونيه؟",
+                    options: ["الانطباعية", "التكعيبية", "السريالية", "الواقعية"],
+                    answer: 0
+                },
+                {
+                    question: "من هو مؤلف رواية '1984'؟",
+                    options: ["جورج أورويل", "ألدوس هكسلي", "راي برادبري", "إرنست همنجواي"],
+                    answer: 0
+                },
+                {
+                    question: "ما هو اسم أشهر مسرحيات أنطون تشيخوف؟",
+                    options: ["النورس", "الخال فانيا", "بستان الكرز", "كل ما سبق"],
+                    answer: 3
+                }
+            ]
+        };
+
+        // عناصر DOM
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const topicBtns = document.querySelectorAll('.topic-btn');
+        const quizTopic = document.getElementById('quiz-topic');
+        const questionCounter = document.getElementById('question-counter');
+        const progressFill = document.getElementById('progress-fill');
+        const questionElement = document.getElementById('question');
+        const optionsContainer = document.getElementById('options');
+        const nextBtn = document.getElementById('next-btn');
+        const scoreElement = document.getElementById('score');
+        const correctAnswersElement = document.getElementById('correct-answers');
+        const wrongAnswersElement = document.getElementById('wrong-answers');
+        const resultMessage = document.getElementById('result-message');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // متغيرات اللعبة
+        let currentTopic = '';
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedOption = null;
+        let quizFinished = false;
+
+        // تعيين أحداث النقر على أزرار المواضيع
+        topicBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentTopic = btn.getAttribute('data-topic');
+                startQuiz();
+            });
+        });
+
+        // بدء الاختبار
+        function startQuiz() {
+            currentQuestions = questions[currentTopic];
+            currentQuestionIndex = 0;
+            score = 0;
+            quizFinished = false;
+
+            // تعيين اسم الموضوع
+            const topicNames = {
+                general: 'المعلومات العامة',
+                science: 'العلوم',
+                history: 'التاريخ',
+                sports: 'الرياضة',
+                art: 'الفنون'
+            };
+            quizTopic.textContent = topicNames[currentTopic];
+
+            // إخفاء شاشة البداية وإظهار شاشة الاختبار
+            startScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            resultScreen.classList.add('hidden');
+
+            // عرض السؤال الأول
+            showQuestion();
+        }
+
+        // عرض السؤال الحالي
+        function showQuestion() {
+            // إعادة تعيين حالة الزر التالي
+            nextBtn.textContent = 'التالي';
+            nextBtn.classList.remove('show-answer');
+            nextBtn.disabled = true;
+
+            // مسح الخيارات السابقة
+            optionsContainer.innerHTML = '';
+
+            // تحديث عداد التقدم
+            questionCounter.textContent = `السؤال ${currentQuestionIndex + 1}/${currentQuestions.length}`;
+            progressFill.style.width = `${((currentQuestionIndex + 1) / currentQuestions.length) * 100}%`;
+
+            // عرض السؤال الحالي
+            const question = currentQuestions[currentQuestionIndex];
+            questionElement.textContent = question.question;
+
+            // عرض الخيارات
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.classList.add('option');
+                optionElement.textContent = option;
+                optionElement.dataset.index = index;
+                optionElement.addEventListener('click', selectOption);
+                optionsContainer.appendChild(optionElement);
+            });
+        }
+
+        // اختيار إجابة
+        function selectOption(e) {
+            if (quizFinished) return;
+
+            const selectedElement = e.target;
+            const selectedIndex = parseInt(selectedElement.dataset.index);
+
+            // إلغاء تحديد أي خيار آخر
+            if (selectedOption !== null) {
+                const options = document.querySelectorAll('.option');
+                options[selectedOption].classList.remove('selected');
+            }
+
+            // تحديد الخيار الجديد
+            selectedOption = selectedIndex;
+            selectedElement.classList.add('selected');
+            nextBtn.disabled = false;
+        }
+
+        // التحقق من الإجابة وعرض النتيجة
+        function checkAnswer() {
+            if (selectedOption === null) return;
+
+            const question = currentQuestions[currentQuestionIndex];
+            const options = document.querySelectorAll('.option');
+
+            // تمكين زر التالي للمتابعة
+            nextBtn.textContent = currentQuestionIndex < currentQuestions.length - 1 ? 'التالي' : 'عرض النتيجة';
+            nextBtn.classList.add('show-answer');
+
+            // تحديد الإجابة الصحيحة والخاطئة
+            options[question.answer].classList.add('correct');
+            if (selectedOption !== question.answer) {
+                options[selectedOption].classList.add('wrong');
+            } else {
+                score++;
+            }
+
+            // منع اختيار إجابات جديدة
+            quizFinished = true;
+        }
+
+        // الانتقال إلى السؤال التالي أو عرض النتيجة
+        function nextQuestion() {
+            if (nextBtn.classList.contains('show-answer')) {
+                // إذا كانت الإجابة معروضة، انتقل إلى السؤال التالي
+                currentQuestionIndex++;
+                selectedOption = null;
+                quizFinished = false;
+
+                if (currentQuestionIndex < currentQuestions.length) {
+                    showQuestion();
+                } else {
+                    showResult();
+                }
+            } else {
+                // إذا لم تكن الإجابة معروضة، تحقق من الإجابة
+                checkAnswer();
+            }
+        }
+
+        // عرض نتيجة الاختبار
+        function showResult() {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+
+            // حساب النتيجة
+            const percentage = (score / currentQuestions.length) * 100;
+            scoreElement.textContent = score;
+            correctAnswersElement.textContent = score;
+            wrongAnswersElement.textContent = currentQuestions.length - score;
+
+            // عرض رسالة النتيجة
+            if (percentage >= 80) {
+                resultMessage.textContent = 'ممتاز! لديك معرفة واسعة في هذا المجال.';
+            } else if (percentage >= 60) {
+                resultMessage.textContent = 'جيد جدًا! لديك معرفة جيدة في هذا المجال.';
+            } else if (percentage >= 40) {
+                resultMessage.textContent = 'ليس سيئًا! يمكنك تحسين معرفتك بالمزيد من الدراسة.';
+            } else {
+                resultMessage.textContent = 'حاول مرة أخرى! يمكنك تحسين نتيجتك بالمزيد من التعلم.';
+            }
+        }
+
+        // إعادة تشغيل الاختبار
+        function restartQuiz() {
+            resultScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+        }
+
+        // تعيين أحداث النقر على الأزرار
+        nextBtn.addEventListener('click', nextQuestion);
+        restartBtn.addEventListener('click', restartQuiz);
+    </script>
+</body>
+</html>

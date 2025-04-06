@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معلومات اللعبة | اختبار الثقافة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        @font-face {
+            font-family: 'Tajawal';
+            src: url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        }
+
+        body {
+            background-color: #0f172a;
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+        }
+
+        .header {
+            padding: 20px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #f72585, #7209b7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(247, 37, 133, 0.3);
+        }
+
+        .back-btn {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-card {
+            background: rgba(30, 58, 138, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: translateY(50px);
+            opacity: 0;
+            animation: fadeInUp 1s forwards;
+        }
+
+        .game-card h2 {
+            color: #f72585;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            border-bottom: 2px solid #f72585;
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        .game-card p {
+            line-height: 1.8;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .features {
+            margin: 20px 0;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .feature i {
+            color: #4cc9f0;
+            font-size: 1.2rem;
+            margin-left: 10px;
+        }
+
+        .developer-card {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 800px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform: translateY(50px);
+            opacity: 0;
+            animation: fadeInUp 1s 0.3s forwards;
+        }
+
+        .developer-card h2 {
+            color: #4cc9f0;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .developer-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+        }
+
+        .developer-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #f72585;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(247, 37, 133, 0.5);
+        }
+
+        .developer-name {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .developer-title {
+            color: #a5b4fc;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+
+        .social-link:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .facebook { background: #3b5998; }
+        .twitter { background: #1da1f2; }
+        .github { background: #333; }
+        .linkedin { background: #0077b5; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* تأثيرات النجوم في الخلفية */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+
+        /* تأثيرات للوضع المحمول */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .game-card, .developer-card {
+                padding: 20px;
+            }
+            
+            .game-card h2, .developer-card h2 {
+                font-size: 1.5rem;
+            }
+            
+            .developer-img {
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <header class="header">
+        <h1>معلومات اللعبة</h1>
+        <button class="back-btn" id="backBtn">
+            <i class="fas fa-arrow-right"></i>
+        </button>
+    </header>
+    
+    <div class="container">
+        <div class="game-card">
+            <h2>لعبة اختبار الثقافة</h2>
+            <p>
+                لعبة "اختبار الثقافة" هي لعبة مسلية تهدف إلى اختبار معلوماتك العامة في مختلف المجالات
+                مثل التاريخ، العلوم، الجغرافيا، الفنون، والرياضة. تحتوي اللعبة على مئات الأسئلة المصممة
+                بعناية لتحدي معرفتك وتوسيع آفاقك الثقافية.
+            </p>
+            
+            <div class="features">
+                <div class="feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>أكثر من 100 سؤال في مختلف المجالات</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>واجهة سهلة الاستخدام وجذابة</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>نظام نقاط وتصنيف للاعبين</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>إمكانية اختيار مجال الأسئلة</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-check-circle"></i>
+                    <span>تحديثات دورية للأسئلة والمحتوى</span>
+                </div>
+            </div>
+            
+            <p>
+                تم تطوير اللعبة لتكون مناسبة لجميع الأعمار، وتهدف إلى تقديم تجربة تعليمية مسلية
+                تساعدك على اكتساب معلومات جديدة وتطوير ثقافتك العامة بينما تستمتع بوقتك.
+            </p>
+        </div>
+        
+        <div class="developer-card">
+            <h2>عن المطور</h2>
+            <div class="developer-info">
+                <img src="https://via.placeholder.com/150" alt="طارق" class="developer-img">
+                <h3 class="developer-name">طارق القاضي</h3>
+                <p class="developer-title">مطور ويب وألعاب</p>
+                <p>
+                    مطور ومبرمج ويب محترف مع خبرات في مجال تطوير التطبيقات والألعاب.
+                    متخصص في تصميم واجهات المستخدم وتجربة المستخدم، ويهدف إلى تقديم منتجات عالية الجودة
+                    تجمع بين المتعة والفائدة.
+                </p>
+                
+                <div class="social-links">
+                    <a href="#" class="social-link facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-link twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-link github">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="#" class="social-link linkedin">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // إنشاء النجوم العشوائية
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 150; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            star.style.width = `${Math.random() * 3}px`;
+            star.style.height = star.style.width;
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.setProperty('--duration', `${Math.random() * 3 + 2}s`);
+            starsContainer.appendChild(star);
+        }
+
+        // زر العودة
+        document.getElementById('backBtn').addEventListener('click', () => {
+            // في تطبيق حقيقي: window.location.href = 'index.html';
+            alert('جاري العودة إلى الصفحة الرئيسية');
+        });
+
+        // تأثيرات عند التمرير
+        window.addEventListener('scroll', () => {
+            const scrollPosition = window.scrollY;
+            const stars = document.querySelectorAll('.star');
+            
+            stars.forEach(star => {
+                const speed = parseFloat(star.style.getPropertyValue('--duration')) * 0.1;
+                star.style.transform = `translateY(${scrollPosition * speed}px)`;
+            });
+        });
+
+        // تأثيرات عند تحميل الصفحة
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.body.style.overflow = 'auto';
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

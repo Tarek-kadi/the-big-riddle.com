@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>واجهة اللعبة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        @font-face {
+            font-family: 'Tajawal';
+            src: url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        }
+
+        body {
+            background-color: #000;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533483);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background-color: #fff;
+            border-radius: 50%;
+            animation: twinkle var(--duration) infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+
+        .game-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+
+        .game-logo {
+            margin-bottom: 40px;
+            text-align: center;
+            transform: translateY(-50px);
+            opacity: 0;
+            animation: fadeInDown 1s ease-out forwards;
+        }
+
+        .game-logo img {
+            max-width: 300px;
+            height: auto;
+        }
+
+        .game-logo h1 {
+            color: white;
+            font-size: 3.5rem;
+            margin-top: 20px;
+            text-shadow: 0 0 10px var(--accent-color),
+                         0 0 20px var(--accent-color),
+                         0 0 30px var(--accent-color);
+            letter-spacing: 2px;
+        }
+
+        .game-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 80%;
+            max-width: 300px;
+            transform: translateY(50px);
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.5s forwards;
+        }
+
+        .menu-btn {
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .menu-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .menu-btn:hover::before {
+            left: 100%;
+        }
+
+        .game-footer {
+            position: absolute;
+            bottom: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            text-align: center;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 1s forwards;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* تأثيرات خاصة للأزرار */
+        .btn-play {
+            background: linear-gradient(45deg, var(--accent-color), #7209b7);
+        }
+
+        .btn-settings {
+            background: linear-gradient(45deg, #4895ef, #3f37c9);
+        }
+
+        .btn-credits {
+            background: linear-gradient(45deg, #4cc9f0, #4361ee);
+        }
+
+        .btn-exit {
+            background: linear-gradient(45deg, #f72585, #b5179e);
+        }
+
+        /* تأثيرات للوضع المحمول */
+        @media (max-width: 768px) {
+            .game-logo h1 {
+                font-size: 2.5rem;
+            }
+            
+            .game-menu {
+                width: 90%;
+            }
+            
+            .menu-btn {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+        }
+
+        /* تأثيرات إضافية */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: floatParticle linear infinite;
+        }
+
+        @keyframes floatParticle {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(20px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    <div class="particles" id="particles"></div>
+    
+    <div class="game-container">
+        <div class="game-logo">
+            <!-- يمكن استبدال هذا بالنص أو صورة الشعار -->
+            <svg width="150" height="150" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" 
+                      fill="url(#paint0_linear)" stroke="#f72585" stroke-width="2"/>
+                <defs>
+                    <linearGradient id="paint0_linear" x1="12" y1="2" x2="12" y2="21.02" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#f72585"/>
+                        <stop offset="1" stop-color="#7209b7"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            <h1>الاحجية الكبرى</h1>
+        </div>
+        
+        <div class="game-menu">
+           <a href="1.html"> <button class="menu-btn btn-play" id="playBtn">
+                <i class="fas fa-play" style="margin-left: 8px;"></i> بدء اللعبة
+            </button> </a>
+            
+           <a href="2.html"> <button class="menu-btn btn-credits" id="creditsBtn">
+                <i class="fas fa-info-circle" style="margin-left: 8px;"></i> معلومات اللعبة
+            </button> </a>
+            
+        </div>
+        
+        <div class="game-footer">
+            <p>الإصدار 1.0 | &copy; 2025  جميع الحقوق محفوظة لدى المطور طارق</p>
+        </div>
+    </div>
+
+    <script>
+        // إنشاء النجوم العشوائية
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 200; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            star.style.width = `${Math.random() * 3}px`;
+            star.style.height = star.style.width;
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.setProperty('--duration', `${Math.random() * 3 + 2}s`);
+            starsContainer.appendChild(star);
+        }
+
+        // إنشاء الجسيمات العائمة
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            particle.style.width = `${Math.random() * 6 + 2}px`;
+            particle.style.height = particle.style.width;
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.bottom = `-10px`;
+            particle.style.animationDuration = `${Math.random() * 20 + 10}s`;
+            particle.style.animationDelay = `${Math.random() * 5}s`;
+            particlesContainer.appendChild(particle);
+        }
+
+        // تأثيرات الأزرار
+        const buttons = document.querySelectorAll('.menu-btn');
+        buttons.forEach(button => {
+            button.addEventListener('mouseenter', () => {
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                button.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 1000);
+            });
+        });
+
+        // معالجة أحداث النقر على الأزرار
+        document.getElementById('playBtn').addEventListener('click', () => {
+            alert('جاري بدء اللعبة...');
+            // window.location.href = 'game.html';
+        });
+
+        document.getElementById('settingsBtn').addEventListener('click', () => {
+            alert('فتح شاشة الإعدادات...');
+            // window.location.href = 'settings.html';
+        });
+
+        document.getElementById('creditsBtn').addEventListener('click', () => {
+            alert('عرض معلومات اللعبة والمطورين...');
+            // window.location.href = 'credits.html';
+        });
+
+        document.getElementById('exitBtn').addEventListener('click', () => {
+            if(confirm('هل أنت متأكد أنك تريد الخروج من اللعبة؟')) {
+                alert('شكراً لك على اللعب! نراكم قريباً');
+                // window.close(); // لا يعمل في كل المتصفحات
+            }
+        });
+
+        // تأثيرات إضافية عند تحميل الصفحة
+        window.addEventListener('load', () => {
+            document.body.style.overflow = 'auto';
+            
+            // إضافة تأثير اهتزاز خفيف للأزرار بشكل متتالي
+            buttons.forEach((btn, index) => {
+                setTimeout(() => {
+                    btn.style.animation = 'shake 0.5s ease-in-out';
+                    setTimeout(() => {
+                        btn.style.animation = '';
+                    }, 500);
+                }, 1000 + (index * 200));
+            });
+        });
+
+        // تأثيرات لوحة المفاتيح
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                const currentBtn = document.querySelector('.menu-btn:focus');
+                if (!currentBtn) {
+                    buttons[0].focus();
+                }
+            }
+            
+            if (e.key === 'Enter') {
+                const focusedBtn = document.querySelector('.menu-btn:focus');
+                if (focusedBtn) {
+                    focusedBtn.click();
+                }
+            }
+        });
+
+        // جعل الأزرار قابلة للتنقل باستخدام لوحة المفاتيح
+        buttons.forEach((btn, index) => {
+            btn.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowDown' && index < buttons.length - 1) {
+                    buttons[index + 1].focus();
+                    e.preventDefault();
+                } else if (e.key === 'ArrowUp' && index > 0) {
+                    buttons[index - 1].focus();
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
